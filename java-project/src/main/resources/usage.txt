@@ -1,0 +1,3 @@
+java -jar YoushengSynthesizer.jar <excel_file> <source_dir> <BGM_dir> <target_dir>
+
+java -jar YoushengSynthesizer.jar C:\Users\Administrator\Desktop\test\test.xls C:\Users\Administrator\Desktop\test\src C:\Users\Administrator\Desktop\test\bgm C:\Users\Administrator\Desktop\test\out
