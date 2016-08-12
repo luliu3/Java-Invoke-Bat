@@ -34,14 +34,13 @@ public class Synthesizer {
             // 检测excel文件内容是否为两列
             Iterator<Map> iterator = excelData.iterator();
             if (iterator.next().size() != 2) {
-                System.out.println("Excel file against the rules.");
+                System.err.println("Excel file against the rules.");
                 System.exit(1);
             } else {
 
+                System.out.println("\nStarting synthesis:\n");
 
-                System.out.println("\nStarting synthesis...");
-
-                int i = 1, count = excelData.size();
+                int i = 1, success = 0, failed = 0, total = excelData.size();
                 for (Map<String, String> map : excelData) {
 
                     // 取得原声音乐、背景音乐文件名
@@ -58,15 +57,27 @@ public class Synthesizer {
 
                     // 调用run.bat合成
                     doSynthesisWithBat(src, bgm, tgt);
-                    System.out.println(temp + " synthesis completed!" +
-                            "(" + i + "/" + count + ")");
 
+                    // test target file exists
+                    String tgtAbsolutePath = System.getProperty("user.dir") + tgt;
+                    File tgtFile = new File(tgtAbsolutePath);
+                    if (tgtFile.exists()) {
+                        success++;
+                        System.out.println("Success: " + temp + " (" + i + "/" + total + ")");
+                    } else {
+                        failed++;
+                        System.err.println("Failed: " + temp + " (" + i + "/" + total + ")");
+                    }
                     i++;
                 }
-                System.out.println("All done!");
+                System.out.println("\nAll done!");
+
+                System.out.print("Summary, Total: " + total);
+                System.out.print(", Success: " + success);
+                System.err.println(", Failed: " + failed);
             }
         } else {
-            System.out.println("Import excel file failed.");
+            System.err.println("Import excel file failed.");
             System.exit(1);
         }
     }
@@ -76,19 +87,27 @@ public class Synthesizer {
         try {
 
             String userDir = System.getProperty("user.dir");
-            String parentPath = userDir + "\\lib";
-            String batPath = parentPath + "\\run.bat";
+            String scriptPath = userDir + "\\lib";
+            String batAbsolutePath = scriptPath + "\\run.bat";
 
             src = userDir + src;
             bgm = userDir + bgm;
             tgt = userDir + tgt;
 
+            // test src and bgm exists
+            File srcFile = new File(src);
+            File bgmFile = new File(bgm);
+            if (!srcFile.exists() || !bgmFile.exists()) {
+                System.err.println("Dry-Sound file or BGM file not exist, please confirm and try again!");
+                throw new FileNotFoundException();
+            }
+
 //            System.out.println(src +"\n" + bgm  +"\n" +tgt);
 
             // command in this form: run.bat src bgm tgt
-            ProcessBuilder processBuilder = new ProcessBuilder(batPath, src, bgm, tgt);
+            ProcessBuilder processBuilder = new ProcessBuilder(batAbsolutePath, src, bgm, tgt);
             processBuilder.redirectErrorStream(true);
-            processBuilder.directory(new File(parentPath));
+            processBuilder.directory(new File(scriptPath));
             Process process = processBuilder.start();
 
             InputStream in = process.getInputStream();

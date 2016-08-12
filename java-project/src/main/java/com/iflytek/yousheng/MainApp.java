@@ -12,7 +12,7 @@ public class MainApp {
         String excelFile, srcDir, bgmDir, tgtDir;
         int numArgs = args.length;
         if (numArgs != 4) {
-            System.out.println("Usage: java -jar YoushengSynthesizer.jar <excel_file>" +
+            System.err.println("Usage: java -jar YoushengSynthesizer.jar <excel_file>" +
                     " <source_dir> <BGM_dir> <target_dir>");
             throw new IllegalArgumentException("Illegal number of arguments.");
         } else {
