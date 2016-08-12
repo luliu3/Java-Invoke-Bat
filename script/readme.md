@@ -1,0 +1,1 @@
+Double-click 'run.bat' run the synthesis scripts and enjoy.

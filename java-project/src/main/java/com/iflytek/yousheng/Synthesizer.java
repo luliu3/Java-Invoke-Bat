@@ -2,8 +2,10 @@ package com.iflytek.yousheng;
 
 import com.iflytek.yousheng.excel.ExcelLogs;
 import com.iflytek.yousheng.excel.ExcelUtil;
+import com.iflytek.yousheng.model.DrySoundBGMList;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -72,7 +74,7 @@ public class Synthesizer {
                 }
                 System.out.println("\nAll done!");
 
-                System.out.print("Summary, Total: " + total);
+                System.out.print("\n结果： Total: " + total);
                 System.out.print(", Success: " + success);
                 System.err.println(", Failed: " + failed);
             }
@@ -80,6 +82,41 @@ public class Synthesizer {
             System.err.println("Import excel file failed.");
             System.exit(1);
         }
+    }
+
+    public void exportDrySoundBGMList() {
+        String userDir = System.getProperty("user.dir") +"\\";
+        String[] srcFiles = getFileNames(userDir + srcDir);
+
+        Collection<Object> excelData=new ArrayList<Object>();
+        for (String src : srcFiles) {
+            excelData.add(new DrySoundBGMList(src, ""));
+        }
+
+        String excelAbsolutePath = userDir + excelFile;
+        File file = new File(excelAbsolutePath);
+        try {
+            OutputStream outputStream = new FileOutputStream(file);
+            String[] headers = {"src", "bgm"};
+            ExcelUtil.exportExcel(headers, excelData, outputStream);
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        // test exist
+        if (new File(excelAbsolutePath).exists()) {
+            System.out.println("\n提示：扫描结束，文件路径: " + excelAbsolutePath);
+        } else {
+            System.err.println("\n提示：扫描失败");
+            System.exit(1);
+        }
+    }
+
+    private String[] getFileNames(String dir) {
+        File file = new File(dir);
+        return file.list();
     }
 
     private void doSynthesisWithBat(String src, String bgm, String tgt) {
@@ -98,8 +135,8 @@ public class Synthesizer {
             File srcFile = new File(src);
             File bgmFile = new File(bgm);
             if (!srcFile.exists() || !bgmFile.exists()) {
-                System.err.println("Dry-Sound file or BGM file not exist, please confirm and try again!");
-                throw new FileNotFoundException();
+                System.err.println("错误：干声文件或背景音乐文件不存在");
+//                System.exit(1);
             }
 
 //            System.out.println(src +"\n" + bgm  +"\n" +tgt);
@@ -134,4 +171,5 @@ public class Synthesizer {
         }
         return excelData;
     }
+
 }
